@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>NEXA · AI Study Assistant Pro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            background: #0F172A;
+            color: #FFFFFF;
+            overflow: hidden;
+        }
+
+        /* ===== APP WRAPPER ===== */
+        .app-wrapper {
+            display: flex;
+            height: 100vh;
+            padding: 12px;
+            gap: 12px;
+            overflow: hidden;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 280px;
+            min-width: 280px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+            padding-right: 6px;
+            scrollbar-width: thin;
+            scrollbar-color: #06B6D4 #1E293B;
+            flex-shrink: 0;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: #1E293B;
+            border-radius: 10px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #06B6D4;
+            border-radius: 10px;
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: #1E293B;
+            border-radius: 16px;
+            padding: 14px 14px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            border: 1px solid #2D3A4F;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: #06B6D4;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(6, 182, 212, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #94A3B8;
+            border-bottom: 1px solid #2D3A4F;
+            padding-bottom: 8px;
+        }
+
+        .card-header i {
+            color: #06B6D4;
+            font-size: 16px;
+            width: 20px;
+        }
+
+        /* ===== TIMER ===== */
+        .timer-display {
+            font-size: 2.4rem;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 3px;
+            color: #06B6D4;
+            background: #0F172A;
+            padding: 8px 0;
+            border-radius: 40px;
+            margin: 4px 0 10px 0;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 0 20px rgba(6, 182, 212, 0.15);
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .timer-controls button {
+            background: #2D3A4F;
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .timer-controls button:hover {
+            background: #06B6D4;
+            color: #0F172A;
+            transform: scale(1.04);
+        }
+
+        .timer-controls button.primary {
+            background: #10B981;
+            color: #0F172A;
+            font-weight: 600;
+        }
+
+        .timer-controls button.primary:hover {
+            background: #34D399;
+        }
+
+        .timer-presets {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .timer-presets button {
+            flex: 1;
+            background: #2D3A4F;
+            border: none;
+            color: #94A3B8;
+            padding: 4px 0;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .timer-presets button:hover,
+        .timer-presets button.active {
+            background: #06B6D4;
+            color: #0F172A;
+        }
+
+        /* ===== NOTE ===== */
+        .note-input {
+            width: 100%;
+            background: #0F172A;
+            border: 1px solid #2D3A4F;
+            border-radius: 12px;
+            padding: 10px 12px;
+            color: white;
+            font-size: 13px;
+            resize: vertical;
+            min-height: 56px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .note-input:focus {
+            outline: none;
+            border-color: #06B6D4;
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
+        }
+
+        .note-input::placeholder {
+            color: #64748B;
+            font-style: italic;
+        }
+
+        .note-hint {
+            font-size: 11px;
+            color: #64748B;
+            margin-top: 6px;
+        }
+
+        .note-hint i {
+            margin-right: 4px;
+        }
+
+        /* ===== SCHEDULE ===== */
+        .schedule-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 4px;
+            max-height: 160px;
+            overflow-y: auto;
+        }
+
+        .schedule-list::-webkit-scrollbar {
+            width: 3px;
+        }
+        .schedule-list::-webkit-scrollbar-thumb {
+            background: #06B6D4;
+            border-radius: 10px;
+        }
+
+        .schedule-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0F172A;
+            padding: 8px 12px;
+            border-radius: 30px;
+            border-left: 3px solid #06B6D4;
+            font-size: 12px;
+            position: relative;
+            transition: all 0.2s;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .schedule-item:hover {
+            background: #1E293B;
+        }
+
+        .schedule-item .date {
+            color: #94A3B8;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .schedule-item .badge-warning {
+            background: #EF4444;
+            color: white;
+            border-radius: 20px;
+            padding: 1px 10px;
+            font-size: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            animation: pulse 2s infinite;
+            white-space: nowrap;
+        }
+
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .schedule-item .badge-warning i {
+            font-size: 10px;
+        }
+
+        .add-schedule {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .add-schedule input[type="text"] {
+            flex: 2;
+            min-width: 80px;
+            background: #0F172A;
+            border: 1px solid #2D3A4F;
+            border-radius: 30px;
+            padding: 6px 12px;
+            color: white;
+            font-size: 12px;
+        }
+
+        .add-schedule input[type="date"] {
+            flex: 1;
+            min-width: 100px;
+            background: #0F172A;
+            border: 1px solid #2D3A4F;
+            border-radius: 30px;
+            padding: 6px 12px;
+            color: white;
+            font-size: 12px;
+        }
+
+        .add-schedule input:focus {
+            outline: none;
+            border-color: #06B6D4;
+        }
+
+        .add-schedule input::placeholder {
+            color: #64748B;
+            font-size: 11px;
+        }
+
+        .add-schedule button {
+            background: #06B6D4;
+            border: none;
+            color: #0F172A;
+            padding: 0 16px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-schedule button:hover {
+            background: #22D3EE;
+            transform: scale(1.04);
+        }
+
+        /* ===== CHAT AREA ===== */
+        .chat-area {
+            flex: 1;
+            background: #1E293B;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #2D3A4F;
+            overflow: hidden;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+            min-width: 0;
+        }
+
+        /* ===== CHAT HEADER ===== */
+        .chat-header {
+            padding: 12px 20px;
+            border-bottom: 1px solid #2D3A4F;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #0F172A;
+            flex-shrink: 0;
+        }
+
+        .chat-header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #06B6D4, #10B981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chat-header h1 i {
+            -webkit-text-fill-color: #06B6D4;
+        }
+
+        .chat-header .sub {
+            color: #94A3B8;
+            font-size: 12px;
+            margin-left: auto;
+            background: #2D3A4F;
+            padding: 3px 14px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .chat-header .sub i {
+            color: #10B981;
+            font-size: 10px;
+        }
+
+        /* ===== CHAT MESSAGES ===== */
+        .chat-messages {
+            flex: 1;
+            padding: 16px 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            background: #0F172A;
+            scroll-behavior: smooth;
+            min-height: 0;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 4px;
+        }
+        .chat-messages::-webkit-scrollbar-track {
+            background: #1E293B;
+        }
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #06B6D4;
+            border-radius: 10px;
+        }
+
+        /* ===== MESSAGE ===== */
+        .message {
+            display: flex;
+            gap: 10px;
+            max-width: 88%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #2D3A4F;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #06B6D4;
+            flex-shrink: 0;
+        }
+
+        .message.user .avatar {
+            background: #10B981;
+            color: #0F172A;
+        }
+
+        .message .bubble {
+            background: #1E293B;
+            padding: 10px 16px;
+            border-radius: 16px;
+            border-top-left-radius: 4px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #E2E8F0;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            border: 1px solid #2D3A4F;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
+        }
+
+        .message.user .bubble {
+            background: #10B981;
+            color: #0F172A;
+            border-color: #10B981;
+            border-top-right-radius: 4px;
+            border-top-left-radius: 16px;
+        }
+
+        .message .bubble .hint {
+            color: #94A3B8;
+            font-size: 13px;
+            border-top: 1px dashed #2D3A4F;
+            margin-top: 8px;
+            padding-top: 8px;
+        }
+
+        .message.user .bubble .hint {
+            color: #0F172A;
+            border-color: #0F172A40;
+        }
+
+        .message .bubble .sources {
+            margin-top: 8px;
+            font-size: 11px;
+            color: #06B6D4;
+            border-top: 1px solid #2D3A4F;
+            padding-top: 8px;
+        }
+
+        .message .bubble .sources i {
+            margin-right: 4px;
+        }
+
+        .message .bubble .direct-answer {
+            background: #0F172A;
+            padding: 10px 14px;
+            border-radius: 10px;
+            margin: 6px 0;
+            border-left: 3px solid #10B981;
+            font-size: 13px;
+        }
+
+        .message .bubble .emoji-reaction {
+            font-size: 18px;
+            margin-top: 4px;
+        }
+
+        /* ===== FILE PREVIEW ===== */
+        .message .bubble .file-preview {
+            background: #0F172A;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 6px 0;
+            border: 1px solid #2D3A4F;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .message .bubble .file-preview img {
+            max-width: 120px;
+            max-height: 120px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .message .bubble .file-preview .file-icon {
+            font-size: 32px;
+            color: #06B6D4;
+        }
+
+        .message .bubble .file-preview .file-info {
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .message .bubble .file-preview .file-info .filename {
+            font-weight: 600;
+            font-size: 13px;
+            word-break: break-all;
+        }
+
+        .message .bubble .file-preview .file-info .filesize {
+            color: #94A3B8;
+            font-size: 11px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== TYPING INDICATOR ===== */
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 3px;
+        }
+
+        .typing-dots span {
+            width: 7px;
+            height: 7px;
+            background: #06B6D4;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+                opacity: 0.4;
+            }
+            30% {
+                transform: translateY(-8px);
+                opacity: 1;
+            }
+        }
+
+        /* ===== CHAT INPUT ===== */
+        .chat-input-area {
+            padding: 12px 20px 16px 20px;
+            background: #0F172A;
+            border-top: 1px solid #2D3A4F;
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            flex-shrink: 0;
+        }
+
+        .chat-input-area textarea {
+            flex: 1;
+            background: #1E293B;
+            border: 1px solid #2D3A4F;
+            border-radius: 30px;
+            padding: 10px 16px;
+            color: white;
+            font-size: 14px;
+            resize: none;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            min-height: 44px;
+            max-height: 100px;
+            line-height: 1.5;
+        }
+
+        .chat-input-area textarea:focus {
+            outline: none;
+            border-color: #06B6D4;
+            box-shadow: 0 0 0 3px #06B6D440;
+        }
+
+        .chat-input-area textarea::placeholder {
+            color: #64748B;
+            font-size: 13px;
+        }
+
+        .chat-input-area .input-buttons {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .chat-input-area .input-buttons button {
+            background: #06B6D4;
+            border: none;
+            color: #0F172A;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            font-size: 17px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .chat-input-area .input-buttons button:hover {
+            background: #22D3EE;
+            transform: scale(1.04);
+        }
+
+        .chat-input-area .input-buttons .file-btn {
+            background: #2D3A4F;
+            color: #94A3B8;
+            font-size: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chat-input-area .input-buttons .file-btn:hover {
+            background: #3D4A5F;
+            color: #FFFFFF;
+        }
+
+        .chat-input-area .input-buttons .file-btn input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* ===== CELEBRATION ===== */
+        .celebration-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(6px);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .celebration-overlay.active {
+            display: flex;
+        }
+
+        .celebration-card {
+            background: #1E293B;
+            border: 2px solid #10B981;
+            border-radius: 36px;
+            padding: 36px 44px;
+            max-width: 380px;
+            text-align: center;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .celebration-card i {
+            font-size: 52px;
+            color: #10B981;
+            margin-bottom: 12px;
+        }
+
+        .celebration-card h2 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #06B6D4;
+        }
+
+        .celebration-card p {
+            color: #94A3B8;
+            margin: 10px 0 20px;
+            font-size: 15px;
+        }
+
+        .celebration-card button {
+            background: #10B981;
+            border: none;
+            color: #0F172A;
+            padding: 12px 32px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .celebration-card button:hover {
+            transform: scale(1.04);
+            background: #34D399;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.7) rotate(-3deg);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        /* ============================================================ */
+        /* ===== RESPONSIVE: TABLET & SMALL LAPTOP ===== */
+        /* ============================================================ */
+        @media (max-width: 1024px) {
+            .app-wrapper {
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .sidebar {
+                width: 240px;
+                min-width: 240px;
+            }
+
+            .timer-display {
+                font-size: 2rem;
+            }
+
+            .chat-header h1 {
+                font-size: 18px;
+            }
+        }
+
+        /* ============================================================ */
+        /* ===== RESPONSIVE: HP (PORTRAIT) ===== */
+        /* ============================================================ */
+        @media (max-width: 768px) {
+            .app-wrapper {
+                flex-direction: column;
+                padding: 8px;
+                gap: 8px;
+                height: 100dvh;
+            }
+
+            /* SIDEBAR MENJADI HORIZONTAL SCROLL / WRAP */
+            .sidebar {
+                width: 100%;
+                min-width: unset;
+                flex-direction: row;
+                flex-wrap: wrap;
+                overflow-y: visible;
+                max-height: 200px;
+                padding-right: 0;
+                gap: 8px;
+                flex-shrink: 0;
+            }
+
+            .sidebar .card {
+                flex: 1;
+                min-width: 140px;
+                max-width: 100%;
+                padding: 10px 12px;
+            }
+
+            /* Sembunyikan scrollbar sidebar di HP */
+            .sidebar::-webkit-scrollbar {
+                display: none;
+            }
+            .sidebar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+
+            /* Timer lebih kecil di HP */
+            .timer-display {
+                font-size: 1.6rem;
+                padding: 4px 0;
+                margin: 2px 0 6px 0;
+            }
+
+            .timer-controls button {
+                padding: 4px 10px;
+                font-size: 11px;
+            }
+
+            .timer-presets button {
+                font-size: 10px;
+                padding: 3px 0;
+            }
+
+            .card-header {
+                font-size: 11px;
+                margin-bottom: 6px;
+                padding-bottom: 6px;
+            }
+            .card-header i {
+                font-size: 14px;
+                width: 18px;
+            }
+
+            .note-input {
+                min-height: 40px;
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+
+            .note-hint {
+                font-size: 10px;
+                margin-top: 4px;
+            }
+
+            .schedule-item {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+            .schedule-item .date {
+                font-size: 10px;
+            }
+            .schedule-item .badge-warning {
+                font-size: 9px;
+                padding: 1px 8px;
+            }
+            .schedule-list {
+                max-height: 100px;
+                gap: 4px;
+            }
+
+            .add-schedule input[type="text"],
+            .add-schedule input[type="date"] {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+            .add-schedule button {
+                font-size: 12px;
+                padding: 0 14px;
+            }
+
+            /* CHAT AREA */
+            .chat-area {
+                flex: 1;
+                min-height: 200px;
+                border-radius: 16px;
+            }
+
+            .chat-header {
+                padding: 8px 14px;
+            }
+            .chat-header h1 {
+                font-size: 16px;
+            }
+            .chat-header .sub {
+                font-size: 10px;
+                padding: 2px 10px;
+            }
+
+            .chat-messages {
+                padding: 10px 14px;
+                gap: 10px;
+            }
+
+            .message {
+                max-width: 94%;
+                gap: 8px;
+            }
+            .message .avatar {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+            .message .bubble {
+                font-size: 13px;
+                padding: 8px 12px;
+                border-radius: 12px;
+                border-top-left-radius: 4px;
+            }
+            .message.user .bubble {
+                border-top-right-radius: 4px;
+                border-top-left-radius: 12px;
+            }
+
+            .message .bubble .hint {
+                font-size: 12px;
+                margin-top: 6px;
+                padding-top: 6px;
+            }
+            .message .bubble .direct-answer {
+                padding: 8px 10px;
+                font-size: 12px;
+                margin: 4px 0;
+            }
+            .message .bubble .sources {
+                font-size: 10px;
+                margin-top: 6px;
+                padding-top: 6px;
+            }
+            .message .bubble .emoji-reaction {
+                font-size: 16px;
+            }
+
+            /* File preview HP */
+            .message .bubble .file-preview {
+                padding: 8px;
+                gap: 8px;
+            }
+            .message .bubble .file-preview img {
+                max-width: 80px;
+                max-height: 80px;
+            }
+            .message .bubble .file-preview .file-icon {
+                font-size: 26px;
+            }
+            .message .bubble .file-preview .file-info .filename {
+                font-size: 12px;
+            }
+            .message .bubble .file-preview .file-info .filesize {
+                font-size: 10px;
+            }
+
+            /* Chat input HP */
+            .chat-input-area {
+                padding: 8px 14px 12px 14px;
+                gap: 8px;
+            }
+            .chat-input-area textarea {
+                font-size: 13px;
+                padding: 8px 14px;
+                min-height: 38px;
+                max-height: 80px;
+                border-radius: 20px;
+            }
+            .chat-input-area textarea::placeholder {
+                font-size: 12px;
+            }
+            .chat-input-area .input-buttons button {
+                width: 38px;
+                height: 38px;
+                font-size: 15px;
+            }
+
+            /* Celebration HP */
+            .celebration-card {
+                padding: 24px 20px;
+                margin: 16px;
+                max-width: 320px;
+                border-radius: 28px;
+            }
+            .celebration-card i {
+                font-size: 40px;
+            }
+            .celebration-card h2 {
+                font-size: 22px;
+            }
+            .celebration-card p {
+                font-size: 14px;
+                margin: 8px 0 16px;
+            }
+            .celebration-card button {
+                padding: 10px 28px;
+                font-size: 14px;
+            }
+        }
+
+        /* ============================================================ */
+        /* ===== RESPONSIVE: HP KECIL (≤ 400px) ===== */
+        /* ============================================================ */
+        @media (max-width: 480px) {
+            .app-wrapper {
+                padding: 4px;
+                gap: 4px;
+            }
+
+            .sidebar {
+                max-height: 160px;
+                gap: 4px;
+            }
+
+            .sidebar .card {
+                padding: 8px 10px;
+                min-width: 100px;
+                border-radius: 12px;
+            }
+
+            .timer-display {
+                font-size: 1.3rem;
+                padding: 2px 0;
+                margin: 0 0 4px 0;
+                border-radius: 30px;
+            }
+
+            .timer-controls button {
+                padding: 3px 8px;
+                font-size: 10px;
+            }
+            .timer-presets button {
+                font-size: 9px;
+            }
+
+            .card-header {
+                font-size: 10px;
+                margin-bottom: 4px;
+                padding-bottom: 4px;
+            }
+            .card-header i {
+                font-size: 12px;
+                width: 16px;
+            }
+
+            .note-input {
+                min-height: 32px;
+                font-size: 11px;
+                padding: 6px 8px;
+                border-radius: 8px;
+            }
+
+            .schedule-item {
+                padding: 4px 8px;
+                font-size: 10px;
+                border-left-width: 2px;
+                border-radius: 20px;
+            }
+            .schedule-item .date {
+                font-size: 9px;
+            }
+            .schedule-item .badge-warning {
+                font-size: 8px;
+                padding: 1px 6px;
+            }
+            .schedule-list {
+                max-height: 80px;
+            }
+
+            .add-schedule input[type="text"],
+            .add-schedule input[type="date"] {
+                font-size: 10px;
+                padding: 3px 8px;
+            }
+            .add-schedule button {
+                font-size: 11px;
+                padding: 0 10px;
+            }
+
+            .chat-header {
+                padding: 6px 10px;
+            }
+            .chat-header h1 {
+                font-size: 14px;
+            }
+            .chat-header .sub {
+                font-size: 9px;
+                padding: 2px 8px;
+            }
+
+            .chat-messages {
+                padding: 8px 10px;
+                gap: 8px;
+            }
+
+            .message {
+                max-width: 96%;
+                gap: 6px;
+            }
+            .message .avatar {
+                width: 24px;
+                height: 24px;
+                font-size: 10px;
+            }
+            .message .bubble {
+                font-size: 12px;
+                padding: 6px 10px;
+                border-radius: 10px;
+            }
+
+            .message .bubble .hint {
+                font-size: 11px;
+            }
+            .message .bubble .direct-answer {
+                padding: 6px 8px;
+                font-size: 11px;
+            }
+            .message .bubble .sources {
+                font-size: 9px;
+            }
+            .message .bubble .emoji-reaction {
+                font-size: 14px;
+            }
+
+            .message .bubble .file-preview {
+                padding: 6px;
+                gap: 6px;
+                border-radius: 8px;
+            }
+            .message .bubble .file-preview img {
+                max-width: 60px;
+                max-height: 60px;
+            }
+            .message .bubble .file-preview .file-icon {
+                font-size: 20px;
+            }
+            .message .bubble .file-preview .file-info .filename {
+                font-size: 11px;
+            }
+            .message .bubble .file-preview .file-info .filesize {
+                font-size: 9px;
+            }
+
+            .chat-input-area {
+                padding: 6px 10px 10px 10px;
+                gap: 6px;
+            }
+            .chat-input-area textarea {
+                font-size: 12px;
+                padding: 6px 12px;
+                min-height: 32px;
+                max-height: 60px;
+                border-radius: 16px;
+            }
+            .chat-input-area textarea::placeholder {
+                font-size: 11px;
+            }
+            .chat-input-area .input-buttons button {
+                width: 32px;
+                height: 32px;
+                font-size: 13px;
+            }
+
+            .celebration-card {
+                padding: 20px 16px;
+                max-width: 280px;
+                border-radius: 20px;
+            }
+            .celebration-card i {
+                font-size: 32px;
+            }
+            .celebration-card h2 {
+                font-size: 18px;
+            }
+            .celebration-card p {
+                font-size: 12px;
+            }
+            .celebration-card button {
+                padding: 8px 20px;
+                font-size: 12px;
+            }
+        }
+
+        /* ============================================================ */
+        /* ===== LANDSCAPE HP ===== */
+        /* ============================================================ */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .app-wrapper {
+                flex-direction: row;
+                padding: 6px;
+                gap: 6px;
+            }
+
+            .sidebar {
+                width: 200px;
+                min-width: 200px;
+                max-height: 100%;
+                flex-direction: column;
+                flex-wrap: nowrap;
+                gap: 6px;
+            }
+
+            .sidebar .card {
+                min-width: unset;
+                padding: 8px 10px;
+            }
+
+            .timer-display {
+                font-size: 1.4rem;
+                padding: 2px 0;
+                margin: 2px 0 4px 0;
+            }
+            .timer-controls button {
+                padding: 3px 8px;
+                font-size: 10px;
+            }
+            .timer-presets button {
+                font-size: 9px;
+            }
+
+            .note-input {
+                min-height: 30px;
+                font-size: 11px;
+                padding: 4px 8px;
+            }
+
+            .schedule-list {
+                max-height: 80px;
+            }
+            .schedule-item {
+                padding: 4px 8px;
+                font-size: 10px;
+            }
+
+            .chat-header {
+                padding: 4px 12px;
+            }
+            .chat-header h1 {
+                font-size: 15px;
+            }
+
+            .chat-messages {
+                padding: 8px 12px;
+                gap: 6px;
+            }
+            .message .bubble {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+
+            .chat-input-area {
+                padding: 6px 12px 8px 12px;
+            }
+            .chat-input-area textarea {
+                min-height: 32px;
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+            .chat-input-area .input-buttons button {
+                width: 32px;
+                height: 32px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-wrapper">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <!-- Timer -->
+            <div class="card">
+                <div class="card-header"><i class="fas fa-clock"></i> Timer Belajar</div>
+                <div class="timer-display" id="timerDisplay">15:00</div>
+                <div class="timer-controls">
+                    <button id="startTimerBtn" class="primary"><i class="fas fa-play"></i> Mulai</button>
+                    <button id="pauseTimerBtn"><i class="fas fa-pause"></i> Jeda</button>
+                    <button id="resetTimerBtn"><i class="fas fa-undo-alt"></i> Reset</button>
+                </div>
+                <div class="timer-presets">
+                    <button data-minutes="15" class="active">15'</button>
+                    <button data-minutes="25">25'</button>
+                    <button data-minutes="45">45'</button>
+                    <button data-minutes="60">60'</button>
+                </div>
+            </div>
+
+            <!-- Important Note -->
+            <div class="card">
+                <div class="card-header"><i class="fas fa-pen-fancy"></i> Catatan Penting</div>
+                <textarea class="note-input" id="importantNote" placeholder="Contoh: Ujian PTS Matematika XI">Ujian PTS Matematika XI</textarea>
+                <div class="note-hint">
+                    <i class="fas fa-info-circle"></i> AI akan gunakan ini sebagai konteks
+                </div>
+            </div>
+
+            <!-- Jadwal -->
+            <div class="card">
+                <div class="card-header"><i class="fas fa-calendar-check"></i> Jadwal & Pengingat</div>
+                <div class="schedule-list" id="scheduleList">
+                    <div class="schedule-item">
+                        <span><i class="fas fa-book" style="color:#06B6D4; margin-right:4px;"></i> Ujian PTS</span>
+                        <span class="date">2026-08-15</span>
+                        <span class="badge-warning"><i class="fas fa-exclamation-triangle"></i> 3 hari</span>
+                    </div>
+                    <div class="schedule-item">
+                        <span><i class="fas fa-pencil-alt" style="color:#10B981; margin-right:4px;"></i> PR Fisika</span>
+                        <span class="date">2026-08-10</span>
+                    </div>
+                </div>
+                <div class="add-schedule">
+                    <input type="text" id="scheduleInput" placeholder="Nama" />
+                    <input type="date" id="scheduleDate" />
+                    <button id="addScheduleBtn"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CHAT AREA -->
+        <main class="chat-area">
+            <div class="chat-header">
+                <h1><i class="fas fa-network-wired"></i> NEXA</h1>
+                <span class="sub">
+                    <i class="fas fa-circle" style="color:#10B981; font-size:8px;"></i>
+                    Online
+                </span>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="message">
+                    <div class="avatar"><i class="fas fa-robot"></i></div>
+                    <div class="bubble">
+                        Halo! Saya <strong>NEXA</strong>, asisten belajarmu. <br />
+                        Saya bisa kasih <strong>jawaban langsung</strong>, <strong>hint</strong>, dan <strong>analisis file/photo</strong>! <br />
+                        <span class="hint">💡 Upload file atau tanyakan apapun!</span>
+                    </div>
+                </div>
+                <div class="typing-indicator" id="typingIndicator">
+                    <div class="avatar" style="background:#2D3A4F; color:#06B6D4;"><i class="fas fa-robot"></i></div>
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <textarea id="chatInput" rows="1" placeholder="Tanyakan apapun..."></textarea>
+                <div class="input-buttons">
+                    <button class="file-btn" id="fileBtn">
+                        <i class="fas fa-paperclip"></i>
+                        <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx" multiple />
+                    </button>
+                    <button id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- CELEBRATION -->
+    <div class="celebration-overlay" id="celebrationOverlay">
+        <div class="celebration-card">
+            <i class="fas fa-trophy"></i>
+            <h2>🎉 Selamat!</h2>
+            <p>Sesi belajar selesai! Waktunya istirahat.</p>
+            <button id="closeCelebrationBtn">Oke!</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ========================
+            // 1. TIMER
+            // ========================
+            const timerDisplay = document.getElementById('timerDisplay');
+            const startBtn = document.getElementById('startTimerBtn');
+            const pauseBtn = document.getElementById('pauseTimerBtn');
+            const resetBtn = document.getElementById('resetTimerBtn');
+            const presets = document.querySelectorAll('.timer-presets button');
+            const celebration = document.getElementById('celebrationOverlay');
+            const closeCeleb = document.getElementById('closeCelebrationBtn');
+
+            let totalSeconds = 15 * 60;
+            let remainingSeconds = totalSeconds;
+            let timerInterval = null;
+            let isPaused = false;
+            let isRunning = false;
+
+            function formatTime(sec) {
+                const m = Math.floor(sec / 60);
+                const s = sec % 60;
+                return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            }
+
+            function updateDisplay() {
+                timerDisplay.textContent = formatTime(remainingSeconds);
+            }
+
+            function stopTimer() {
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+                isRunning = false;
+            }
+
+            function startTimer() {
+                if (isRunning) return;
+                if (remainingSeconds <= 0) {
+                    remainingSeconds = totalSeconds;
+                    updateDisplay();
+                }
+                isPaused = false;
+                isRunning = true;
+                pauseBtn.innerHTML = '<i class="fas fa-pause"></i> Jeda';
+                timerInterval = setInterval(() => {
+                    if (!isPaused) {
+                        remainingSeconds--;
+                        updateDisplay();
+                        if (remainingSeconds <= 0) {
+                            stopTimer();
+                            celebration.classList.add('active');
+                            remainingSeconds = totalSeconds;
+                            updateDisplay();
+                            isRunning = false;
+                        }
+                    }
+                }, 1000);
+            }
+
+            function pauseTimer() {
+                if (isRunning) {
+                    isPaused = !isPaused;
+                    pauseBtn.innerHTML = isPaused ? '<i class="fas fa-play"></i> Lanjut' :
+                        '<i class="fas fa-pause"></i> Jeda';
+                }
+            }
+
+            function resetTimer() {
+                stopTimer();
+                isPaused = false;
+                isRunning = false;
+                remainingSeconds = totalSeconds;
+                updateDisplay();
+                pauseBtn.innerHTML = '<i class="fas fa-pause"></i> Jeda';
+            }
+
+            startBtn.addEventListener('click', startTimer);
+            pauseBtn.addEventListener('click', pauseTimer);
+            resetBtn.addEventListener('click', resetTimer);
+
+            presets.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const mins = parseInt(this.dataset.minutes, 10);
+                    totalSeconds = mins * 60;
+                    remainingSeconds = totalSeconds;
+                    updateDisplay();
+                    resetTimer();
+                    presets.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            closeCeleb.addEventListener('click', () => celebration.classList.remove('active'));
+            celebration.addEventListener('click', (e) => {
+                if (e.target === celebration) celebration.classList.remove('active');
+            });
+
+            // ========================
+            // 2. SCHEDULE
+            // ========================
+            const scheduleList = document.getElementById('scheduleList');
+            const addScheduleBtn = document.getElementById('addScheduleBtn');
+            const scheduleInput = document.getElementById('scheduleInput');
+            const scheduleDate = document.getElementById('scheduleDate');
+
+            function addScheduleItem(name, date) {
+                const item = document.createElement('div');
+                item.className = 'schedule-item';
+                const now = new Date();
+                const target = new Date(date);
+                const diff = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
+                let badge = '';
+                if (diff <= 3 && diff >= 0) {
+                    badge =
+                        `<span class="badge-warning"><i class="fas fa-exclamation-triangle"></i> ${diff} hari</span>`;
+                } else if (diff < 0) {
+                    badge = `<span class="badge-warning" style="background:#6B7280;"><i class="fas fa-check"></i> lewat</span>`;
+                }
+                item.innerHTML = `
+                    <span><i class="fas fa-calendar-day" style="color:#06B6D4; margin-right:4px;"></i> ${name}</span>
+                    <span class="date">${date}</span>
+                    ${badge}
+                `;
+                scheduleList.appendChild(item);
+            }
+
+            addScheduleBtn.addEventListener('click', function() {
+                const name = scheduleInput.value.trim();
+                const date = scheduleDate.value;
+                if (!name || !date) return alert('Isi nama dan tanggal!');
+                addScheduleItem(name, date);
+                scheduleInput.value = '';
+                scheduleDate.value = '';
+            });
+
+            // ========================
+            // 3. FILE UPLOAD
+            // ========================
+            const fileInput = document.getElementById('fileInput');
+            const chatMessages = document.getElementById('chatMessages');
+            const chatInput = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const typingIndicator = document.getElementById('typingIndicator');
+
+            function formatFileSize(bytes) {
+                if (bytes < 1024) return bytes + ' B';
+                if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+                if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
+                return (bytes / 1073741824).toFixed(1) + ' GB';
+            }
+
+            function getFileIcon(filename) {
+                const ext = filename.split('.').pop().toLowerCase();
+                const icons = {
+                    'pdf': 'fa-file-pdf',
+                    'doc': 'fa-file-word',
+                    'docx': 'fa-file-word',
+                    'xls': 'fa-file-excel',
+                    'xlsx': 'fa-file-excel',
+                    'ppt': 'fa-file-powerpoint',
+                    'pptx': 'fa-file-powerpoint',
+                    'txt': 'fa-file-alt',
+                    'jpg': 'fa-file-image',
+                    'jpeg': 'fa-file-image',
+                    'png': 'fa-file-image',
+                    'gif': 'fa-file-image',
+                    'svg': 'fa-file-image',
+                };
+                return icons[ext] || 'fa-file';
+            }
+
+            function analyzeFile(file) {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    const ext = file.name.split('.').pop().toLowerCase();
+                    const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp'];
+
+                    if (imageExts.includes(ext)) {
+                        reader.onload = function(e) {
+                            const img = new Image();
+                            img.onload = function() {
+                                const analysis = `
+                                    📸 <strong>Analisis Photo</strong><br>
+                                    • Nama: ${file.name}<br>
+                                    • Ukuran: ${formatFileSize(file.size)}<br>
+                                    • Dimensi: ${img.width} × ${img.height} px<br>
+                                    • Format: ${ext.toUpperCase()}<br><br>
+                                    <strong>📝 Deskripsi:</strong><br>
+                                    Gambar berhasil diupload. Tanyakan spesifik tentang gambar ini.
+                                `;
+                                resolve(analysis);
+                            };
+                            img.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        let fileType = 'Dokumen';
+                        if (ext === 'pdf') fileType = 'PDF';
+                        else if (['doc', 'docx'].includes(ext)) fileType = 'Word';
+                        else if (['xls', 'xlsx'].includes(ext)) fileType = 'Excel';
+                        else if (['ppt', 'pptx'].includes(ext)) fileType = 'PowerPoint';
+                        else if (ext === 'txt') fileType = 'Text';
+
+                        const analysis = `
+                            📄 <strong>Analisis File</strong><br>
+                            • Nama: ${file.name}<br>
+                            • Ukuran: ${formatFileSize(file.size)}<br>
+                            • Type: ${fileType}<br>
+                            • Format: ${ext.toUpperCase()}<br><br>
+                            <strong>📝 Konten:</strong><br>
+                            File "${file.name}" siap dianalisis. Tanyakan tentang isinya.
+                        `;
+                        setTimeout(() => resolve(analysis), 300);
+                    }
+                });
+            }
+
+            function addFileMessage(file, analysis) {
+                const div = document.createElement('div');
+                div.className = 'message';
+                const ext = file.name.split('.').pop().toLowerCase();
+                const isImage = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp'].includes(ext);
+
+                let previewHtml = '';
+                if (isImage) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const imgPreview = document.querySelector(`#file-${file.name.replace(/[^a-zA-Z0-9]/g, '_')}`);
+                        if (imgPreview) {
+                            imgPreview.src = e.target.result;
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                    previewHtml = `
+                        <div class="file-preview">
+                            <img id="file-${file.name.replace(/[^a-zA-Z0-9]/g, '_')}" src="" alt="${file.name}" style="max-width:120px; max-height:120px; border-radius:6px; object-fit:cover;" />
+                            <div class="file-info">
+                                <div class="filename"><i class="fas ${getFileIcon(file.name)}" style="color:#06B6D4; margin-right:6px;"></i>${file.name}</div>
+                                <div class="filesize">${formatFileSize(file.size)}</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    previewHtml = `
+                        <div class="file-preview">
+                            <div class="file-icon"><i class="fas ${getFileIcon(file.name)}"></i></div>
+                            <div class="file-info">
+                                <div class="filename">${file.name}</div>
+                                <div class="filesize">${formatFileSize(file.size)}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                div.innerHTML = `
+                    <div class="avatar"><i class="fas fa-user-graduate"></i></div>
+                    <div class="bubble">
+                        📎 <strong>File diupload:</strong>
+                        ${previewHtml}
+                        <div style="margin-top:6px; border-top:1px solid #2D3A4F; padding-top:6px;">
+                            ${analysis}
+                        </div>
+                    </div>
+                `;
+                chatMessages.appendChild(div);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function addAIAnalysis(file, analysis) {
+                const div = document.createElement('div');
+                div.className = 'message';
+                div.innerHTML = `
+                    <div class="avatar"><i class="fas fa-robot"></i></div>
+                    <div class="bubble">
+                        🤖 <strong>Analisis AI:</strong><br>
+                        ${analysis}
+                        <div class="hint">💡 Tanyakan lebih lanjut tentang file ini!</div>
+                        <div class="sources"><i class="fas fa-robot"></i> NEXA AI Analysis</div>
+                    </div>
+                `;
+                chatMessages.appendChild(div);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            fileInput.addEventListener('change', async function(e) {
+                const files = Array.from(this.files);
+                if (files.length === 0) return;
+                this.value = '';
+
+                typingIndicator.classList.add('active');
+
+                for (const file of files) {
+                    const analysis = await analyzeFile(file);
+                    addFileMessage(file, analysis);
+
+                    setTimeout(() => {
+                        const response = `📊 Saya sudah menganalisis <strong>${file.name}</strong>.<br><br>
+                            File ini siap untuk dibahas lebih lanjut. Tanyakan spesifik tentang isinya!`;
+                        addAIAnalysis(file, response);
+                    }, 300);
+                }
+
+                typingIndicator.classList.remove('active');
+            });
+
+            // ========================
+            // 4. CHAT AI
+            // ========================
+            function getImportantNote() {
+                return document.getElementById('importantNote').value.trim() || 'belajar umum';
+            }
+
+            function addMessage(text, isUser = false, hint = '', sources = '', directAnswer = '', emoji = '') {
+                const div = document.createElement('div');
+                div.className = `message ${isUser ? 'user' : ''}`;
+                const avatarIcon = isUser ? '<i class="fas fa-user-graduate"></i>' : '<i class="fas fa-robot"></i>';
+
+                let bubbleContent = text;
+                if (emoji) bubbleContent += `<div class="emoji-reaction">${emoji}</div>`;
+                if (directAnswer) {
+                    bubbleContent += `<div class="direct-answer"><strong>✅ Jawaban Langsung:</strong><br>${directAnswer}</div>`;
+                }
+                if (hint) bubbleContent += `<div class="hint">${hint}</div>`;
+                if (sources) bubbleContent += `<div class="sources"><i class="fas fa-globe"></i> ${sources}</div>`;
+
+                div.innerHTML = `
+                    <div class="avatar">${avatarIcon}</div>
+                    <div class="bubble">${bubbleContent}</div>
+                `;
+                chatMessages.appendChild(div);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function getAIResponse(userMessage, noteContext) {
+                const lower = userMessage.toLowerCase().trim();
+                const context = noteContext || 'belajar';
+
+                if (lower.includes('file') || lower.includes('upload') || lower.includes('gambar') || lower.includes(
+                        'photo')) {
+                    return {
+                        response: '📎 Siap analisis file/photo yang kamu upload!',
+                        hint: '💡 Klik 📎 di samping kirim, pilih file, saya akan analisis.',
+                        directAnswer: 'Upload file/photo untuk analisis AI.',
+                        sources: 'NEXA File Analysis',
+                        emoji: '📎'
+                    };
+                }
+
+                const greetings = ['halo', 'hai', 'hey', 'hello', 'hi', 'selamat', 'pagi', 'siang', 'sore', 'malam'];
+                if (greetings.some(w => lower.includes(w))) {
+                    return {
+                        response: 'Halo! 😊 Ada yang bisa saya bantu? Upload file juga bisa loh!',
+                        hint: '💡 Tanyakan materi, upload file, atau minta contoh soal!',
+                        directAnswer: '',
+                        sources: '',
+                        emoji: '👋'
+                    };
+                }
+
+                const isMath = lower.includes('matematika') || lower.includes('mtk') || lower.includes('hitung') ||
+                    lower.includes('rumus');
+                const isPhysics = lower.includes('fisika') || lower.includes('gerak') || lower.includes('gaya');
+                const isIndonesian = lower.includes('bahasa indonesia') || lower.includes('puisi') || lower.includes(
+                    'pantun');
+                const asksForAnswer = lower.includes('jawaban') || lower.includes('berapa') || lower.includes('hasil') ||
+                    lower.includes('apa itu') || lower.includes('definisi') || lower.includes('rumus');
+
+                let response = '',
+                    hint = '',
+                    directAnswer = '',
+                    sources = '',
+                    emoji = '';
+
+                if (isMath) {
+                    emoji = '📐';
+                    if (asksForAnswer) {
+                        if (lower.includes('turunan')) {
+                            directAnswer =
+                                'Turunan: f\'(x) = lim(h→0) [f(x+h)-f(x)]/h\nContoh: f(x)=x³ → f\'(x)=3x²';
+                            response = '✅ Rumus turunan!';
+                            hint = '💡 Pelajari aturan rantai.';
+                        } else {
+                            directAnswer =
+                                `Matematika ${context}: aljabar, geometri, trigonometri, kalkulus.`;
+                            response = '✅ Ringkasan matematika!';
+                            hint = '💡 Buat catatan rumus dan latihan.';
+                        }
+                    } else {
+                        response = `📐 Matematika ${context}: pelajari aljabar, geometri, trigonometri.`;
+                        hint = '💡 Fokus satu topik per hari.';
+                    }
+                    sources = 'Buku Matematika · Ruang Guru';
+                    return { response, hint, directAnswer, sources, emoji };
+                }
+
+                if (isPhysics) {
+                    emoji = '⚡';
+                    if (asksForAnswer) {
+                        if (lower.includes('gerak')) {
+                            directAnswer = 'GLBB: v = v₀ + at, s = v₀t + ½at²';
+                            response = '✅ Rumus gerak!';
+                            hint = '💡 Bedakan GLB dan GLBB.';
+                        } else {
+                            directAnswer = `Fisika ${context}: mekanika, listrik, optik.`;
+                            response = '✅ Ringkasan fisika!';
+                            hint = '💡 Hubungkan teori dengan fenomena.';
+                        }
+                    } else {
+                        response = `⚡ Fisika ${context}: mekanika, termodinamika, listrik.`;
+                        hint = '💡 Fokus satu bab dan latihan soal.';
+                    }
+                    sources = 'Buku Fisika · Kemendikbud';
+                    return { response, hint, directAnswer, sources, emoji };
+                }
+
+                if (isIndonesian) {
+                    emoji = '📝';
+                    if (asksForAnswer) {
+                        if (lower.includes('puisi')) {
+                            directAnswer =
+                                'Puisi: karya sastra dengan diksi & rima.\nContoh: "Aku" - Chairil Anwar';
+                            response = '✅ Penjelasan puisi!';
+                            hint = '💡 Analisis majas dan citraan.';
+                        } else {
+                            directAnswer = `Bahasa Indonesia: tata bahasa, sastra, menulis.`;
+                            response = '✅ Ringkasan bahasa Indonesia!';
+                            hint = '💡 Banyak baca dan latihan menulis.';
+                        }
+                    } else {
+                        response = `📝 Bahasa Indonesia ${context}: tata bahasa, sastra, menulis.`;
+                        hint = '💡 Buat rangkuman materi.';
+                    }
+                    sources = 'Buku Bahasa Indonesia · KBBI';
+                    return { response, hint, directAnswer, sources, emoji };
+                }
+
+                // Fallback
+                if (asksForAnswer) {
+                    directAnswer = `Untuk "${context}", fokus pada definisi, konsep, dan aplikasi.`;
+                    response = '✅ Jawaban untuk pertanyaanmu!';
+                    hint = '💡 Diskusikan dengan guru untuk lebih paham.';
+                    emoji = '📚';
+                } else {
+                    response =
+                        `🤔 Saya siap membantu! Tanyakan tentang "${context}", minta contoh soal, atau upload file.`;
+                    hint = '💡 Semakin spesifik, semakin akurat jawaban saya.';
+                    emoji = '💡';
+                }
+                sources = 'NEXA Knowledge Base';
+                return { response, hint, directAnswer, sources, emoji };
+            }
+
+            function handleSend() {
+                const text = chatInput.value.trim();
+                if (!text) return;
+
+                addMessage(text, true);
+                chatInput.value = '';
+                chatInput.style.height = 'auto';
+
+                typingIndicator.classList.add('active');
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                const note = getImportantNote();
+
+                setTimeout(() => {
+                    typingIndicator.classList.remove('active');
+                    const { response, hint, directAnswer, sources, emoji } = getAIResponse(text, note);
+                    addMessage(response, false, hint, sources, directAnswer, emoji);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 400 + Math.random() * 400);
+            }
+
+            sendBtn.addEventListener('click', handleSend);
+            chatInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                }
+            });
+
+            chatInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+            });
+
+            console.log('🚀 NEXA AI - Responsive & Siap Analisis File!');
+        })();
+    </script>
+</body>
+</html>
